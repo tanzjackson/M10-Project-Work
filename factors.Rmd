@@ -1,0 +1,70 @@
+---
+title: "factors"
+author: "Tanzania Jackson"
+date: "8/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+nyc_events <- read_csv("https://data.cityofnewyork.us/resource/tvpp-9vvx.csv")
+
+nyc_events %>% count(event_type)
+```
+
+Overall the columns in this dataset are clean, of course the event names and location columns could use some cleaning but those are all unqiue to the event. There isn't one ruling factor tying them together. The two columns that I felt could use some collapsing for factors were the event_type and event_street_side columns. In the event_type column, events such as block party, rally, shooting permit and sport - youth could all be condensed into the overarching factor of special event. Same for the plaza partner event and theater load in and loads out which I condensed into production event. 
+
+In the event_street_side column the factors both and full relatively meant the same to me as if you are using both sides of the street, you are using both sides. I went ahead and condensed those under both just because both had the most frequent number of uses. 
+
+In terms of order, the only column that I felt that would come in handy is for event_type just so it can easily be seen what type of event happens most frequetnly. 
+
+```{r}
+tidyevents <- nyc_events %>%
+  mutate(event_type = recode_factor(event_type,
+                                 "Block Party" = "Special Event",
+                                 "Farmers Market" = "Farmers Market", 
+                                 "Parade" = "Parade",
+                                 "Plaza Event" = "Plaza Event",
+                                 "Plaza Partner Event" = " Plaza Event",
+                                 "Production Event" = "Production Event",
+                                 "Rally" = "Special Event",
+                                 "Shooting Permit" = "Special Event",
+                                 "Special Event" = "Special Event",
+                                 "Sport - Youth" = "Special Event",
+                                 "Street Event" = "Street Event",
+                                 "Theater Load in and Load Outs" = "Production Event"))
+
+
+tidyevents %>% count(event_type)
+```
+
+```{r}
+tidyevents %>%
+  mutate(event_type = event_type %>% fct_infreq() %>% fct_rev()) %>%
+  ggplot(aes(event_type)) +
+    geom_bar()
+```
+
+
+```{r}
+nyc_events %>% count(event_street_side)
+```
+
+```{r}
+tidyevents <- nyc_events %>%
+  mutate(event_street_side = recode_factor(event_street_side,
+                                           "Both" = "Both",
+                                           "East" = "East",
+                                           "Full" = "Both", 
+                                           "North" = "North",
+                                           "South" = "South",
+                                           "West" = "West", 
+                                           "NA" = "NA"))
+tidyevents %>% count(event_street_side)
+```
+
+
