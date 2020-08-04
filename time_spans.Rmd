@@ -1,0 +1,50 @@
+---
+title: "time_spans"
+author: "Tanzania Jackson"
+date: "8/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+nyc_events <- read_csv("https://data.cityofnewyork.us/resource/tvpp-9vvx.csv")
+```
+
+```{r}
+nyc_events %>%
+  select(event_name, start_date_time, end_date_time) %>%
+  mutate(new_startdate = as.Date(start_date_time)) %>%
+  mutate(new_enddate = as.Date(end_date_time)) 
+```
+
+OR
+
+```{r}
+library(lubridate)
+new_time <-nyc_events %>%
+  select(event_name, start_date_time, end_date_time) %>%
+  mutate(as_datetime(start_date_time)) %>%
+  mutate(as_datetime(end_date_time))
+
+```
+
+```{r}
+new_time %>%
+  select(start_date_time, end_date_time) %>%
+  format(Sys.time(), "%H")
+```
+
+```{r}
+new_time %>%
+  select(start_date_time, end_date_time) %>%
+  mutate(stime = str_sub(start_date_time, -9, -1)) %>%
+  mutate(etime = str_sub(end_date_time, -9, -1)) %>%
+  mutate(stime2 = hms(stime))%>%
+  mutate(etime2 = hms(etime)) %>%
+  mutate(duration = (etime2-stime2))
+```
+
