@@ -1,0 +1,79 @@
+---
+title: "M10 Project Work"
+author: "Tanzania Jackson"
+date: "8/16/2020"
+output: flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(fig.width = 5, fig.asp = 1/3)
+nyc_events <- read_csv("https://data.cityofnewyork.us/resource/tvpp-9vvx.csv")
+```
+
+```{r}
+tidyevents <- nyc_events %>%
+  mutate(event_type = recode_factor(event_type,
+                                 "Block Party" = "Special Event",
+                                 "Farmers Market" = "Farmers Market", 
+                                 "Parade" = "Parade",
+                                 "Plaza Event" = "Plaza Event",
+                                 "Plaza Partner Event" = " Plaza Event",
+                                 "Production Event" = "Production Event",
+                                 "Rally" = "Special Event",
+                                 "Shooting Permit" = "Special Event",
+                                 "Special Event" = "Special Event",
+                                 "Sport - Youth" = "Special Event",
+                                 "Street Event" = "Street Event",
+                                 "Theater Load in and Load Outs" = "Production Event"))
+
+```
+
+## Column 1
+### Event Type
+```{r}
+ggplot(tidyevents, aes(event_type)) + geom_bar()+ theme(axis.text.x = element_text(size = 5))
+```
+
+### Event Borough
+
+```{r}
+ggplot(tidyevents, aes(event_borough)) + geom_bar()
+```
+
+
+## Column 2
+
+### Events in Queens
+
+```{r}
+queensfilter<-tidyevents %>%
+  select(event_type, event_borough)%>%
+  filter(event_borough== "Queens")
+
+ggplot(queensfilter, aes(event_type))+ geom_bar()
+```
+
+### Event Duration
+
+```{r}
+nyc_events %>%
+  select(event_name, start_date_time, end_date_time) %>%
+  mutate(new_startdate = as.Date(start_date_time)) %>%
+  mutate(new_enddate = as.Date(end_date_time)) 
+
+```
+
+```{r}
+duration <-new_time %>%
+  select(start_date_time, end_date_time) %>%
+  mutate(stime = str_sub(start_date_time, -9, -1)) %>%
+  mutate(etime = str_sub(end_date_time, -9, -1)) %>%
+  mutate(stime2 = hms(stime))%>%
+  mutate(etime2 = hms(etime)) %>%
+  mutate(duration = (etime2-stime2))
+
+ggplot(duration, aes(x=start_date_time, y=end_date_time)) + geom_count()
+
+```
+
