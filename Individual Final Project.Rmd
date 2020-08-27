@@ -1,0 +1,99 @@
+---
+title: "Individual Final Project"
+author: "Tanzania Jackson"
+date: "8/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(fig.width = 5, fig.asp = 1/3)
+events_data <- read_csv("https://data.cityofnewyork.us/resource/tvpp-9vvx.csv")
+childcare <- read_csv("https://data.cityofnewyork.us/resource/dsg6-ifza.csv")
+```
+
+```{r cleandata, include=FALSE}
+cleandata <- events_data %>%
+  mutate(event_type = recode_factor(event_type,
+                                 "Block Party" = "Special Event",
+                                 "Farmers Market" = "Farmers Market", 
+                                 "Parade" = "Parade",
+                                 "Plaza Event" = "Plaza Event",
+                                 "Plaza Partner Event" = " Plaza Event",
+                                 "Production Event" = "Production Event",
+                                 "Rally" = "Special Event",
+                                 "Shooting Permit" = "Special Event",
+                                 "Special Event" = "Special Event",
+                                 "Sport - Youth" = "Special Event",
+                                 "Street Event" = "Street Event",
+                                 "Theater Load in and Load Outs" = "Production Event"))
+```
+
+ 
+
+```{r all-event-types, include=FALSE}
+ggplot(cleandata, aes(event_type)) + geom_bar()+ theme(axis.text.x = element_text(size = 5))
+
+```
+
+When evaluating this data, my original thought process was to see which boroughs had the most events. As someone being in their early 20s and still in college, things that would attract me to a borough is a lot of events and action so the first question I wanted to evaluate is "Which borough has the most events?"
+
+### Which borough has the most events?
+
+```{r borough-events, echo=FALSE}
+ggplot(cleandata, aes(event_borough)) + geom_bar()
+```
+
+It was pretty evident that Queens doesn't have the most events happening. Of course things that could factor into this is the current pandemic and people wanting to social distance. To better see which type of events were happening in the borough, I asked the question "What type of events are happening in Queens?"
+
+### What type of events are happening in Queens? 
+
+```{r events-in-queens, echo=FALSE}
+queensfilter<-cleandata %>%
+  select(event_type, event_borough)%>%
+  filter(event_borough== "Queens")
+
+ggplot(queensfilter, aes(event_type))+ geom_bar()
+```
+
+Though the dataset does supply the event names, there were too many variations to create a cohesive and overall useful chart. So after seeing this information, I wanted to see if there is a particular location that these events are happening or a certain area where a person living in Queens can expect to find an event?
+
+
+### Event locations in Queens
+```{r queenslocations, echo=FALSE}
+locationfilter<-cleandata%>%
+  select(event_agency, event_borough)%>%
+  filter(event_borough== "Queens")
+
+ggplot(locationfilter, aes(event_agency)) + geom_bar()
+```
+
+Here we can see that majority of the events that do happen, fall under the responsibility of the Parks Department. With this, I assumed that maybe Queens would be a great place for young families to live as people tend to take their kids to the park frequently. I decided I needed some supplemental data for this and decided to pull in the Childcare dataset. 
+
+From here I was hoping to see if there was a good childcare system in place where parents can put their children into daycare or preschool and be confident in their safety. Unfortunately that was not the case as we see, Queens has the second most violations out of all the boroughs. Just to get more specific, I looked into the violation types for Queens which most are general but the second highest are critical which doesn't instill much confidence into the parents. The last thing I wanted to see was "If there is a certain level of schooling which has the most violations?" Turns out the level with the most violations was Preschool. 
+
+### Childcare violations by borough
+```{r childcare-borough, echo=FALSE}
+ggplot(childcare, aes(borough)) + geom_bar()
+```
+
+### Violation type for Queens
+```{r violations, echo=FALSE}
+queens <- childcare %>%
+  select(borough, zipcode, programtype, violationcategory)%>%
+filter(borough == "QUEENS")
+
+ggplot(queens, aes(violationcategory)) + geom_bar()+ theme(axis.text.x = element_text(size = 6))
+```
+
+### Violation type by program level
+```{r programlevel, echo=FALSE}
+ggplot(data = queens) + 
+  geom_bar(mapping = aes(x = programtype, fill = violationcategory), position = "dodge") + theme(axis.text.x = element_text(size = 6))
+```
+
+From here I think it is safe to assume that Queens wouldn't be the best borough to live if you're a young family looking to enroll your small children into preschool, not to say that the overall education in the area is bad. I don't have that data so I can't tell you. So if Queens isn't for 20 somethings or young families, then who is it for? 
+
+Personally, I feel like people who are 40 years and older with children who have already left for college or are in their senior year of high school could thrive in Queens. Why? Because, there are some events that happen in the area, but not too many and from the the data above, the borough isn't the best for young kids. Mature couples can live in Queens, feel like things are going on in their area and enjoy some quiet while living not too far away from Manhattan if they want to go to some of the bigger events.
+
+Some supplemental datasets to support this theory would be ones that include the demographics of the borough, restaurant information, as most people who have empty nest tend to eat out more, and maybe some data on the crime. As someone who has never been to New York, I cannot say for sure if the Queens borough is best suited for the older demographic but I can say that the charts I have presented do support the idea.  
